@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/czesczolem/smartcontract/issues"
   },
-  "homepage": "https://github.com/czesczolem/smartcontract#readme"
+  "homepage": "https://github.com/czesczolem/smartcontract#readme",
+  "dependencies": {
+    "solc": "^0.4.20"
+  }
 }
