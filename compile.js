@@ -8,3 +8,5 @@ const source = fs.readFileSync(inboxPath, 'utf8')
 
 //source file and number of contracts
 solc.compile(source,1);
+
+module.exports = solc.compile(source,1).contracts[':Inbox'];
