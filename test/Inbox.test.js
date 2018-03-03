@@ -1,3 +1,4 @@
+
 const assert = require('assert');
 
 //Local test network old test RPC 
@@ -8,25 +9,44 @@ const ganache = require('ganache-cli');
 //Connect ABI interface with ganache network
 const Web3 = require('web3');
 
+const provider = ganache.provider();
 //provider of eth network, interface between Ganache and web3
 //constructor of web3 gets interface and link to network
-const web3 = new Web3(ganache.provider());
+const web3 = new Web3(provider);
 
-class Car {
+const {interface, bytecode} = require('../compile.js');
 
-	park() {
-		return "stop";
-	}
+let accounts;
+let inbox;
 
-	drive() {
-		return "wrooom";
-	}
+beforeEach(async () => {
+	//Get list of accounts
+	accounts = await web3.eth.getAccounts();
 
-}
+	inbox = await new web3.eth.Contract(JSON.parse(interface))
+	.deploy({ data: bytecode, arguments: ['HI!'] })
+	.send({ from: accounts[1], gas: '1000000'})
 
-describe('car', () => {
-	it ('can park', () => {
-		const car = new Car();
-		assert.equal(car.park(), "stop");
-	})
-})
+	inbox.setProvider(provider);
+	});
+	
+
+
+describe('Inbox', () => {
+	it('deploys contract', () => {
+		//check if contract get address
+		assert.ok(inbox.options.address);
+	});
+
+	it('message', async() => {
+		const message = await inbox.methods.message().call();
+		assert.equal('HI!', message)
+	});
+
+	it('set message', async () => {
+		const new_message = "elo"
+		await inbox.methods.setMessage(new_message).send({ from: accounts[1] })
+		const message = await inbox.methods.message().call();
+		assert.equal(message, new_message);
+	});
+});
